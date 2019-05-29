@@ -1,0 +1,674 @@
+{
+  "node": {
+    "memory": [
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P1-DIMMA1 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP1ABC"
+          }
+        ], 
+        "description": "dimm p1a1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P1-DIMMA2 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP1ABC"
+          }
+        ], 
+        "description": "dimm p1a2"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P1-DIMMB1 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP1ABC"
+          }
+        ], 
+        "description": "dimm p1b1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P1-DIMMB2 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP1ABC"
+          }
+        ], 
+        "description": "dimm p1b2"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P1-DIMMC1 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP1ABC"
+          }
+        ], 
+        "description": "dimm p1c1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P1-DIMMC2 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP1ABC"
+          }
+        ], 
+        "description": "dimm p1c2"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P1-DIMMD1 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP1DEF"
+          }
+        ], 
+        "description": "dimm p1d1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P1-DIMMD2 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP1DEF"
+          }
+        ], 
+        "description": "dimm p1d2"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P1-DIMME1 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP1DEF"
+          }
+        ], 
+        "description": "dimm p1e1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P1-DIMME2 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP1DEF"
+          }
+        ], 
+        "description": "dimm p1e2"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P1-DIMMF1 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP1DEF"
+          }
+        ], 
+        "description": "dimm p1f1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P1-DIMMF2 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP1DEF"
+          }
+        ], 
+        "description": "dimm p1f2"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P2-DIMMA1 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP2ABC"
+          }
+        ], 
+        "description": "dimm p2a1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P2-DIMMA2 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP2ABC"
+          }
+        ], 
+        "description": "dimm p2a2"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P2-DIMMB1 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP2ABC"
+          }
+        ], 
+        "description": "dimm p2b1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P2-DIMMB2 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP2ABC"
+          }
+        ], 
+        "description": "dimm p2b2"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P2-DIMMC1 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP2ABC"
+          }
+        ], 
+        "description": "dimm p2c1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P2-DIMMC2 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP2ABC"
+          }
+        ], 
+        "description": "dimm p2c2"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P2-DIMMD1 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP2DEF"
+          }
+        ], 
+        "description": "dimm p2d1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P2-DIMMD2 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP2DEF"
+          }
+        ], 
+        "description": "dimm p2d2"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P2-DIMME1 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP2DEF"
+          }
+        ], 
+        "description": "dimm p2e1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P2-DIMME2 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP2DEF"
+          }
+        ], 
+        "description": "dimm p2e2"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P2-DIMMF1 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP2DEF"
+          }
+        ], 
+        "description": "dimm p2f1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:P2-DIMMF2 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:VDIMMP2DEF"
+          }
+        ], 
+        "description": "dimm p2f2"
+      }
+    ], 
+    "storage_controllers": [
+      {
+        "subsystem": "15d9:0808", 
+        "name": "LSI Logic / Symbios Logic SAS3008 PCI-Express Fusion-MPT SAS-3", 
+        "mapping": [
+          {
+            "slot_designation": "1", 
+            "hba_address": "0", 
+            "slot_id": 1, 
+            "location": {
+              "access_plane": 1, 
+              "height": 3, 
+              "width": 4, 
+              "cell_y": 0, 
+              "cell_x": 0
+            }, 
+            "led_address": "sas3ircu:0,1:0"
+          }, 
+          {
+            "slot_designation": "2", 
+            "hba_address": "1", 
+            "slot_id": 2, 
+            "location": {
+              "access_plane": 1, 
+              "height": 3, 
+              "width": 4, 
+              "cell_y": 0, 
+              "cell_x": 4
+            }, 
+            "led_address": "sas3ircu:0,1:1"
+          }, 
+          {
+            "slot_designation": "3", 
+            "hba_address": "2", 
+            "slot_id": 3, 
+            "location": {
+              "access_plane": 1, 
+              "height": 3, 
+              "width": 4, 
+              "cell_y": 0, 
+              "cell_x": 8
+            }, 
+            "led_address": "sas3ircu:0,1:2"
+          }, 
+          {
+            "slot_designation": "4", 
+            "hba_address": "3", 
+            "slot_id": 4, 
+            "location": {
+              "access_plane": 1, 
+              "height": 3, 
+              "width": 4, 
+              "cell_y": 0, 
+              "cell_x": 12
+            }, 
+            "led_address": "sas3ircu:0,1:3"
+          }, 
+          {
+            "slot_designation": "5", 
+            "hba_address": "4", 
+            "slot_id": 5, 
+            "location": {
+              "access_plane": 1, 
+              "height": 3, 
+              "width": 4, 
+              "cell_y": 0, 
+              "cell_x": 16
+            }, 
+            "led_address": "sas3ircu:0,1:4"
+          }, 
+          {
+            "slot_designation": "6", 
+            "hba_address": "5", 
+            "slot_id": 6, 
+            "location": {
+              "access_plane": 1, 
+              "height": 3, 
+              "width": 4, 
+              "cell_y": 0, 
+              "cell_x": 20
+            }, 
+            "led_address": "sas3ircu:0,1:5"
+          }
+        ], 
+        "address": "1000:0097:0", 
+        "attributes": {}, 
+        "class": "MPTSAS"
+      }
+    ], 
+    "nvme": {
+      "class": "nvme_smc_ipmicfg", 
+      "mapping": [
+        {
+          "slot_designation": "1", 
+          "slot_address": "0", 
+          "slot_id": 1, 
+          "location": {
+            "access_plane": 1, 
+            "height": 3, 
+            "width": 4, 
+            "cell_y": 0, 
+            "cell_x": 0
+          }, 
+          "led_address": "ipmicfg:0,0,0"
+        }, 
+        {
+          "slot_designation": "2", 
+          "slot_address": "1", 
+          "slot_id": 2, 
+          "location": {
+            "access_plane": 1, 
+            "height": 3, 
+            "width": 4, 
+            "cell_y": 0, 
+            "cell_x": 4
+          }, 
+          "led_address": "ipmicfg:0,0,1"
+        }
+      ]
+    }, 
+    "misc_device_classes": [], 
+    "hba": {
+      "subsystem": "15d9:0808", 
+      "name": "LSI Logic / Symbios Logic SAS3008 PCI-Express Fusion-MPT SAS-3", 
+      "mapping": [
+        {
+          "slot_designation": "1", 
+          "hba_address": "0", 
+          "slot_id": 1, 
+          "location": {
+            "access_plane": 1, 
+            "height": 3, 
+            "width": 4, 
+            "cell_y": 0, 
+            "cell_x": 0
+          }, 
+          "led_address": "sas3ircu:0,1:0"
+        }, 
+        {
+          "slot_designation": "2", 
+          "hba_address": "1", 
+          "slot_id": 2, 
+          "location": {
+            "access_plane": 1, 
+            "height": 3, 
+            "width": 4, 
+            "cell_y": 0, 
+            "cell_x": 4
+          }, 
+          "led_address": "sas3ircu:0,1:1"
+        }, 
+        {
+          "slot_designation": "3", 
+          "hba_address": "2", 
+          "slot_id": 3, 
+          "location": {
+            "access_plane": 1, 
+            "height": 3, 
+            "width": 4, 
+            "cell_y": 0, 
+            "cell_x": 8
+          }, 
+          "led_address": "sas3ircu:0,1:2"
+        }, 
+        {
+          "slot_designation": "4", 
+          "hba_address": "3", 
+          "slot_id": 4, 
+          "location": {
+            "access_plane": 1, 
+            "height": 3, 
+            "width": 4, 
+            "cell_y": 0, 
+            "cell_x": 12
+          }, 
+          "led_address": "sas3ircu:0,1:3"
+        }, 
+        {
+          "slot_designation": "5", 
+          "hba_address": "4", 
+          "slot_id": 5, 
+          "location": {
+            "access_plane": 1, 
+            "height": 3, 
+            "width": 4, 
+            "cell_y": 0, 
+            "cell_x": 16
+          }, 
+          "led_address": "sas3ircu:0,1:4"
+        }, 
+        {
+          "slot_designation": "6", 
+          "hba_address": "5", 
+          "slot_id": 6, 
+          "location": {
+            "access_plane": 1, 
+            "height": 3, 
+            "width": 4, 
+            "cell_y": 0, 
+            "cell_x": 20
+          }, 
+          "led_address": "sas3ircu:0,1:5"
+        }
+      ], 
+      "address": "1000:0097:0", 
+      "attributes": {}, 
+      "class": "MPTSAS"
+    }, 
+    "cpus": [
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:CPU1 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:Vcpu1"
+          }
+        ], 
+        "description": "cpu 1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "temperature", 
+            "address": "ipmi_sensor:CPU2 Temp"
+          }, 
+          {
+            "type": "voltage", 
+            "address": "ipmi_sensor:Vcpu2"
+          }
+        ], 
+        "description": "cpu 2"
+      }
+    ], 
+    "model_string": "NX-3060-G6", 
+    "fans": [
+      {
+        "sensors": [
+          {
+            "type": "rpm", 
+            "address": "ipmi_sensor:FAN1"
+          }
+        ], 
+        "description": "fan 1"
+      }, 
+      {
+        "sensors": [
+          {
+            "type": "rpm", 
+            "address": "ipmi_sensor:FAN2"
+          }
+        ], 
+        "description": "fan 2"
+      }
+    ], 
+    "location": {
+      "access_plane": 2, 
+      "height": 1, 
+      "width": 4, 
+      "cell_y": 1, 
+      "cell_x": 0
+    }, 
+    "node_number": 1, 
+    "sensors": [
+      {
+        "type": "temperature", 
+        "address": "ipmi_sensor:System Temp"
+      }, 
+      {
+        "type": "temperature", 
+        "address": "ipmi_sensor:BPN_M2_Temp"
+      }
+    ], 
+    "boot_device": {
+      "controller": "HBA:8086:a182:0", 
+      "mapping": [
+        {
+          "slot_designation": "0", 
+          "slot_id": null, 
+          "port": "7"
+        }, 
+        {
+          "slot_designation": "1", 
+          "slot_id": null, 
+          "port": "8", 
+          "preferred": true
+        }
+      ], 
+      "structure": "ONLY_HYPERVISOR"
+    }, 
+    "hardware_attributes": {
+      "lcm_family": "smc_gen_11", 
+      "default_workload": "vdi"
+    }
+  }, 
+  "version": 1, 
+  "chassis": {
+    "height_u": 2, 
+    "power_supplies": [
+      {
+        "sensors": [
+          {
+            "discrete_response_mask": 15, 
+            "type": "discrete", 
+            "discrete_response_expected": 1, 
+            "address": "ipmi_sensor:PS1 Status"
+          }
+        ], 
+        "description": "power supply 1", 
+        "location": {
+          "access_plane": 2, 
+          "height": 1, 
+          "width": 2, 
+          "cell_y": 0, 
+          "cell_x": 4
+        }
+      }, 
+      {
+        "sensors": [
+          {
+            "discrete_response_mask": 15, 
+            "type": "discrete", 
+            "discrete_response_expected": 1, 
+            "address": "ipmi_sensor:PS2 Status"
+          }
+        ], 
+        "description": "power supply 2", 
+        "location": {
+          "access_plane": 2, 
+          "height": 1, 
+          "width": 2, 
+          "cell_y": 1, 
+          "cell_x": 4
+        }
+      }
+    ], 
+    "access_planes": [
+      {
+        "rows": 3, 
+        "type": "chassis_front", 
+        "id": 1, 
+        "columns": 102, 
+        "description": "Front of chassis"
+      }, 
+      {
+        "rows": 2, 
+        "type": "chassis_rear", 
+        "id": 2, 
+        "columns": 10, 
+        "description": "Rear of chassis"
+      }
+    ], 
+    "class": "SMIPMI", 
+    "num_nodes": 4
+  }
+}

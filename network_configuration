@@ -1,0 +1,287 @@
+#!/usr/bin/python
+#
+# Copyright (c) 2015 Nutanix Inc. All rights reserved.
+#
+# Author: akshay@nutanix.com
+#
+# Crash Cart network configuration script.
+# Configures network as follows:
+# 1) Choose single network vs separate networks.
+# 2) For storage network, choose:
+#    a. uplinks of the vswitch
+#    b. vlan tag
+#    c. default gateway, subnet mask
+#    d. IP for hypervisor
+#    e. IP for CVM
+# 3) For management network, choose:
+#    a. uplinks:
+#      - Show the uplinks which are not used by storage network, if any.
+#        If user selects any of these, create "br1" for management network.
+#      - Additional option of: same as storage network.
+#        If this option is chosen, then uplinks cannot be selected.
+#        If user selects this option, then management network
+#        is a separate vlan on br0.
+#    b. Rest of the options are same as 2b-2e.
+
+# Assumptions:
+#  1) CVM is up.
+#  2) Internal interface is configured and working.
+#  3) If management network is configured then cvm has 2 interfaces already.
+#  4) If management network is configured then cvm, host can be accessed using
+#  management ips only.
+#  5) Default nutanix password works.
+
+
+import json
+import os
+import socket
+import struct
+import sys
+import time
+
+import crash_gui
+import crash_gui_widgets
+import crash_utils
+import libvirt_utils
+import netUtil
+
+from crash_gui import *
+from kvm_net_utils import *
+from firstboot_utils import *
+from log import ERROR, FATAL, INFO, set_log_file
+
+LOG_PATH = "network_configuration.log"
+
+def validate_ip(address):
+  """
+  Validate IP address.
+  Returns True if valid, False otherwise.
+  """
+  try:
+    if struct.unpack("!I", socket.inet_pton(socket.AF_INET, address))[0]:
+      return True
+  except Exception as e:
+    ERROR("Validate ip %s failed with exception %s" % (address, e))
+    return False
+
+  return False
+
+def validate_vlan_tag(vlan_tag):
+  """
+  Validates vlan tag.
+  Returns True if successful, False otherwise.
+  """
+  if not vlan_tag:
+    return True
+
+  try:
+    vlan_tag = int(vlan_tag)
+    if vlan_tag > 4095:
+      ERROR("Incorrect vlan tag provided %s, valid range is 0-4094" % vlan_tag)
+      return False
+
+  except ValueError:
+    ERROR("vlan tag %s is not a valid integer" % vlan_tag)
+    return False
+
+  return True
+
+def validate_parameters(config_json):
+  """
+  Validate all parameters.
+  Returns True if successful, False otherwise.
+  """
+  # There is no need to validate checkbox and dropdown options.
+  # Validate only text box options.
+  valid = True
+  valid_keys = ["cvm_interfaces", "host_interfaces", "vswitches",
+                "rdma_passthru_nic_list"]
+  valid_names = ["br0", "br1", "_internal_"]
+
+  try:
+    for key, value in config_json.iteritems():
+      if key not in valid_keys:
+        ERROR("Key %s is not expected" % key)
+        valid = False
+
+      # Validate vswitches.
+      if key == "vswitches":
+        required_keys = ["uplinks", "name", "mtu"]
+        for val in value:
+          for k in required_keys:
+            if k not in val:
+              ERROR("Entry for %s is missing %s" % (key, k))
+              valid = False
+          if val["name"] not in valid_names:
+            ERROR("Entry for %s has invalid name %s" % (key, val["name"]))
+            valid = False
+          try:
+            val["mtu"] = int(val["mtu"])
+          except ValueError:
+            ERROR("Invalid MTU %s for %s" % (val["mtu"], key))
+            valid = False
+
+      # Validate host_interfaces and cvm_interfaces.
+      else:
+        required_keys = ["name", "vswitch", "vlan", "ip", "netmask", "gateway"]
+        non_empty_keys = ["ip", "netmask", "gateway"]
+        for val in value:
+          for k in required_keys:
+            if k not in val.keys():
+              ERROR("Entry for %s is missing %s" % (key, k))
+              valid = False
+
+          if val.get("vswitch") not in valid_names:
+            ERROR("Entry for %s has invalid vswitch %s" % (val.get("name"),
+                                                           val.get("vswitch")))
+            valid = False
+
+          valid = validate_vlan_tag(val.get("vlan"))
+
+          for k in non_empty_keys:
+            if not val.get(k):
+              ERROR("%s is not provided for %s" % (k, val.get("name")))
+              valid = False
+            # TODO : add check for netmask and gatway.
+
+  except Exception as e:
+    FATAL("Failed to parse parameters with exception %s, %s" %
+          (e, format_exc()))
+
+  return valid
+
+def customize_kvm(cfg):
+  """
+  Configure kvm ifcfg file.
+  Touches only br* files, physical interfaces are not touched.
+  Return True if successful, Fatals otherwise.
+  """
+
+  INFO("Customizing KVM, generating config file")
+
+  host_interfaces = cfg["host_interfaces"]
+
+  for iface in host_interfaces:
+    netUtil.write_ifcfg(iface, cfg.get("vswitches"), path_prefix="",
+                        is_ovs=True)
+  return True
+
+def configure_cvm_ips(cfg):
+  """
+  Assume cvm is up, ssh into cvm and configure eth0/ eth2 ips.
+  Returns True if successful, Fatals otherwise.
+  """
+  INFO("Configuring cvm ips")
+
+  cvm_interfaces = cfg["cvm_interfaces"]
+
+  for iface in cvm_interfaces:
+
+    # Skip configuring the internal CVM interface.
+    # It should have been configured earilier.
+    if iface["vswitch"] == "_internal_":
+      continue
+
+    path_prefix = "/tmp"
+    ifcfgfile = "/etc/sysconfig/network-scripts/ifcfg-" + iface["name"]
+
+    dir_name = os.path.dirname(os.path.join(path_prefix,
+                                            ifcfgfile.lstrip("/")))
+    if not os.path.exists(dir_name):
+      os.makedirs(dir_name)
+
+    netUtil.write_ifcfg(iface, cfg["vswitches"],
+                        path_prefix=path_prefix)
+
+
+    # Copy file to /etc/sysconfig/network-scripts/ifcfg-* path.
+    # This path has root permissions so copy it to /tmp first and then to
+    # correct location.
+    temp_filename = os.path.join(path_prefix, ifcfgfile.lstrip("/"))
+    scp_files_to_svm(temp_filename, os.path.join(path_prefix, iface["name"]))
+
+    cmd = ("sudo mv %s %s" % (os.path.join(path_prefix, iface["name"]),
+                             ifcfgfile))
+    run_cmd_on_svm(cmd, dest_host="nutanix@192.168.5.254")
+
+    # Set correct permission and user.
+    cmd = ("sudo chown root:root %s" % ifcfgfile)
+    run_cmd_on_svm(cmd, dest_host="nutanix@192.168.5.254")
+
+    cmd = ("sudo chmod 644 %s" %ifcfgfile)
+    run_cmd_on_svm(cmd, dest_host="nutanix@192.168.5.254")
+
+    if os.path.exists(temp_filename):
+      os.unlink(temp_filename)
+
+  # Restart network on cvm.
+  # It was found that service network restart just after modifying network
+  # files has some issues. So adding 5 sec sleep.
+  time.sleep(5)
+  INFO("Restarting cvm network")
+  cmd = ("sudo service network restart")
+  run_cmd_on_svm(cmd, dest_host="nutanix@192.168.5.254")
+  return True
+
+def restart_genesis():
+  """
+  Restart genesis on cvm.
+  """
+  cmd = ("/home/nutanix/cluster/bin/genesis restart")
+  run_cmd_on_svm(cmd, dest_host="nutanix@192.168.5.254")
+
+  return True
+
+def main(config_json):
+  """
+  Read then configuration json and configure vswitches, host, cvm.
+  """
+  if not validate_parameters(config_json):
+    return False
+
+  INFO("Initiating network configuration")
+  # Delete all vswitches.
+  delete_all_vswitches()
+
+  # Configure vswitches and host interfaces.
+  customize_kvm(config_json)
+  configure_ovs(config_json)
+
+  # Configure cvm interfaces.
+  libvirt_utils.configure_cvm_interfaces(config_json)
+  configure_cvm_ips(config_json)
+
+  time.sleep(5)
+  restart_genesis()
+
+  INFO("Network configuration successful!")
+  return True
+
+if __name__ == "__main__":
+  try:
+    set_log_file(LOG_PATH)
+    initialize_ssh_keys(crash_utils.SVM_SSH_KEY_PATH,
+                        crash_utils.SSH_PATH,
+                        crash_utils.SCP_PATH)
+
+    err_log = "Node may be in a cluster, cannot run crashcart"
+    if crash_utils.check_if_in_cluster():
+      INFO("%s" % err_log)
+      sys.exit(0)
+
+    if len(sys.argv) > 1:
+      filename = sys.argv[1]
+      INFO("Reading input from %s file" % filename)
+      if not os.path.exists(filename):
+        FATAL("File %s does not exist" % filename)
+      with open(filename, "r") as fp:
+        config_json= json.load(fp)
+    else:
+      status, config_json = crash_gui.run_gui(crash_gui.NetworkConfigGui())
+      if status == crash_gui_widgets.CANCEL:
+        INFO("User canceled operation, exiting...")
+        sys.exit(0)
+
+    main(config_json)
+  except Exception as e:
+    ERROR("Exception %s traceback : %s" % (e, format_exc()))

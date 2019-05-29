@@ -1,0 +1,235 @@
+#!/usr/bin/python
+#
+# Copyright (c) 2018 Nutanix Inc. All rights reserved.
+#
+# Author: sadhana.kannan@nutanix.com
+#
+# RDMA configuration script
+#
+# Configures RDMA as follows:
+# 1) Passes through the nic to be used for RDMA
+# 2) Writes to nic_config.json
+#
+# if cluster has been created, please pass in ssh key
+import json
+import os
+import sys
+import traceback
+
+import crash_gui
+import crash_gui_widgets
+import crash_utils
+import firstboot_utils
+import libvirt_utils
+
+from log import INFO, ERROR, FATAL, set_log_file
+
+LOG_PATH = "rdma_configuration.log"
+
+def detach_all_rdma_nics(rdma_bus_addrs, cvm_domain):
+  """
+  Detaches all rdma capable nics on node from cvm
+
+  Args:
+      rdma_bus_addrs (list): List of rdma capable bus addresses
+      cvm_domain (str): Domain name of CVM
+  Returns:
+      Nics detached from cvm. The following tuple is returned:
+          (bus_addr, xml snippet for nic)
+  """
+  passthru_nics = []
+  for bus_addr in rdma_bus_addrs:
+    desc, xml = libvirt_utils.get_host_device_xml(cvm_domain, bus_addr)
+    if desc and xml:
+      passthru_nics.append((bus_addr, xml))
+      INFO("Detaching device with bus %s from CVM" % bus_addr)
+      libvirt_utils.detach_device(cvm_domain, xml)
+  return passthru_nics
+
+def passthru_intf(domain, name, bus_addr):
+  """
+  Passes through the interface to cvm
+  Args:
+      domain (str): Domain name of CVM
+      name (str): Name of interface eg. eth0
+      bus_addr (str): Bus address of interface eg. 86:00.0
+  """
+  INFO("Passing through intf with name %s and bus addr %s" % (name, bus_addr))
+  libvirt_utils.attach_passthru_device(domain, bus_addr)
+  ifcfg_file = "/etc/sysconfig/network-scripts/ifcfg-%s" % name
+  if os.path.exists(ifcfg_file):
+    os.remove(ifcfg_file)
+
+def configure_rdma_nic_on_cvm(config_json):
+  """
+  Configures details for rdma nic on cvm
+  Specifically, creates /etc/nutanix/nic_config.json
+  with the following data structure:
+      {
+        "rdma":
+            {
+              "mac_address": <mac_address of rdma nic>
+            }
+      }
+
+  """
+  nics = config_json["rdma_nic_list"]
+  mac_addr = nics[0]["mac_addr"]
+  rdma_config_json = {"rdma": {"mac_address": mac_addr}}
+
+  temp_nic_config = "/root/nutanix-network-crashcart/nic_config.json"
+  with open(temp_nic_config, "w") as nic_config:
+    nic_config.write(json.dumps(rdma_config_json, indent=2))
+
+  firstboot_utils.scp_files_to_svm(temp_nic_config,
+                                   os.path.join("/tmp", "nic_config.json"))
+  cmd = 'sudo mv /tmp/nic_config.json /etc/nutanix/nic_config.json'
+  firstboot_utils.run_cmd_on_svm(cmd, dest_host="nutanix@192.168.5.254")
+
+  cmd = 'sudo chmod 644 /etc/nutanix/nic_config.json'
+  firstboot_utils.run_cmd_on_svm(cmd, dest_host="nutanix@192.168.5.254")
+
+def get_intfs_in_bond():
+  """
+  Returns interfaces that are already part of a bond
+  """
+  out, _, _ = firstboot_utils.run_cmd_new(["ovs-appctl", "bond/list"])
+  # Output will be of the following form:
+  # bond    type    recircID    slaves
+  # br0-up    active-backup    0    eth1, eth0
+  intfs = {}
+  for line in out.splitlines()[1:]:
+    words = line.split()
+    for i in range(3, len(words)):
+      words[i] = words[i].strip().replace(",", "")
+      intfs[words[i]] = words[0]
+  return intfs
+
+def validate_rdma_config(config_json, rdma_bus_addrs):
+  """
+  Validates the config passed by user
+  1) Checks for required keys
+  2) Checks whether all values are valid
+  3) Checks whether nics that will be passthru are not part of bond
+
+  Args:
+    config_json (dict): Config created by gui/user
+    rdma_bus_addrs (list): Bus addresses of rdma capable nics
+
+  Returns:
+    True if config_json is valid, False otherwise
+  """
+  valid = True
+
+  bonded_intfs = get_intfs_in_bond()
+  required_keys = ["name", "bus_addr", "mac_addr"]
+  for nic in config_json["rdma_nic_list"]:
+    for key in required_keys:
+      if key not in nic.keys():
+        ERROR("%s is missing for nic %s" % (key, nic.get("name")))
+        valid = False
+
+    if nic.get("bus_addr") not in rdma_bus_addrs:
+      ERROR("%s is not a rdma capable nic")
+      valid = False
+
+    nic_info = crash_utils.NicInfo(nic.get("name"))
+    if nic_info.bus_addr != nic.get("bus_addr"):
+      ERROR("Bus addr for nic %s is not correct" % nic.get("name"))
+      valid = False
+
+    if nic_info.mac_addr != nic.get("mac_addr"):
+      ERROR("Mac addr for nic %s is not correct" % nic.get("mac_addr"))
+      valid = False
+
+  selected_rdma_nics = [nic["name"] for nic in config_json["rdma_nic_list"]]
+  passthru_nics = crash_utils.fix_passthru_nics(selected_rdma_nics)
+  for nic in passthru_nics:
+    # Check if intf is not already part of a bond
+    if nic in bonded_intfs.keys():
+      ERROR("%s already in bond %s" % (nic_name,
+                                       bonded_intfs[nic_name]))
+      valid = False
+
+  return valid
+
+def main(config_json, rdma_bus_addrs, cvm_domain):
+  """
+  Does the following:
+      1) Validates the config passed
+      2) Configures the rdma nic based on config passed
+
+  Args:
+    config_json (dict): Config generated by gui/user
+    rdma_bus_addrs (list): List of bus addresses of rdma capable nics
+    cvm_domain (str): Name of cvm domain
+  """
+  # validate the config passed
+  if not validate_rdma_config(config_json, rdma_bus_addrs):
+    return
+
+  # detach all rdma_capable nics passed
+  detach_all_rdma_nics(rdma_bus_addrs, cvm_domain)
+
+  # Delete /etc/nutanix/nic_config.json is present
+  cmd = "sudo rm -f /etc/nutanix/nic_config.json"
+  firstboot_utils.run_cmd_on_svm(cmd, dest_host="nutanix@192.168.5.254")
+
+  # Get all nics to be passthrough
+  selected_rdma_nics = [nic["name"] for nic in config_json["rdma_nic_list"]]
+  passthru_nics = crash_utils.fix_passthru_nics(selected_rdma_nics)
+
+  # Passthrough the interfaces to the cvm
+  for nic in passthru_nics:
+    nic_info = crash_utils.NicInfo(nic)
+    passthru_intf(cvm_domain, nic_info.dev, nic_info.bus_addr)
+
+  # Configures the selected nic for rdma
+  configure_rdma_nic_on_cvm(config_json)
+  return
+
+if __name__ == "__main__":
+  try:
+    # initialization
+    set_log_file(LOG_PATH)
+    firstboot_utils.initialize_ssh_keys(crash_utils.SVM_SSH_KEY_PATH,
+                                        crash_utils.SSH_PATH,
+                                        crash_utils.SCP_PATH)
+    # Check if default ssh keys work
+    if crash_utils.check_if_in_cluster():
+      INFO("Node seems to be part of a cluster,"
+           "cant use default ssh key")
+      # Request for cvm ssh key
+      svm_ssh_key_path = raw_input("Input CVM sshkey_path: ")
+      firstboot_utils.initialize_ssh_keys(svm_ssh_key_path,
+                                          crash_utils.SSH_PATH,
+                                          crash_utils.SCP_PATH)
+
+      # check if works
+      crash_utils.check_if_in_cluster(fatal=True)
+
+    rdma_capable_bus_addrs = crash_utils.get_rdma_nics()
+    if not rdma_capable_bus_addrs:
+      FATAL("Unable to find rdma capable nics")
+
+    conn = libvirt_utils.libvirt_connect()
+    cvm_domain = libvirt_utils.get_cvm_domain(conn)
+
+    # detach all nics that have been passthru
+    detached_nics = detach_all_rdma_nics(rdma_capable_bus_addrs, cvm_domain)
+
+    # use gui to get config expected
+    status, config_json = crash_gui.run_gui(crash_gui.RdmaConfigGui())
+    if status == crash_gui_widgets.CANCEL:
+      INFO("User canceled operation, exiting...")
+
+      # Reattach detached nics, since user cancelled operation
+      for nic_bus, nic_xml in detached_nics:
+        INFO("Attaching device with bus %s back to cvm" % nic_bus)
+        libvirt_utils.attach_device(cvm_domain, nic_xml)
+      sys.exit(0)
+
+    # Configures rdma based on config_json
+    main(config_json, rdma_capable_bus_addrs, cvm_domain)
+  except Exception as e:
+    ERROR("Exception %s traceback : %s" % (e, traceback.format_exc()))

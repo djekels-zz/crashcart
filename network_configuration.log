@@ -1,0 +1,68 @@
+2019-05-28 22:16:03,071 INFO  Run ssh cmd on SVM
+2019-05-28 22:16:03,072 INFO  Running cmd ['/usr/bin/ssh -i /root/nutanix-network-crashcart/nutanix -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=0 -o UserKnownHostsFile=/dev/null nutanix@192.168.5.254 "ls /tmp/svm_boot_succeeded"']
+2019-05-28 22:16:03,533 INFO  Running cmd ['/sbin/ethtool eth3']
+2019-05-28 22:16:03,540 INFO  Running cmd ['lspci -mmvv -s 0000:3b:00.1']
+2019-05-28 22:16:03,572 INFO  Running cmd ['/sbin/ethtool eth2']
+2019-05-28 22:16:03,575 INFO  Running cmd ['lspci -mmvv -s 0000:3b:00.0']
+2019-05-28 22:16:03,601 INFO  Running cmd ['/sbin/ethtool eth1']
+2019-05-28 22:16:03,604 INFO  Running cmd ['lspci -mmvv -s 0000:18:00.1']
+2019-05-28 22:16:03,628 INFO  Running cmd ['/sbin/ethtool eth0']
+2019-05-28 22:16:03,632 INFO  Running cmd ['lspci -mmvv -s 0000:18:00.0']
+2019-05-28 22:16:40,375 INFO  Initiating network configuration
+2019-05-28 22:16:40,375 INFO  Running cmd ['ovs-vsctl list-br']
+2019-05-28 22:16:40,422 INFO  Running cmd ['ovs-vsctl del-br br0']
+2019-05-28 22:16:40,627 INFO  Running cmd ['rm -f /etc/sysconfig/network-scripts/ifcfg-br0']
+2019-05-28 22:16:40,632 INFO  Customizing KVM, generating config file
+2019-05-28 22:16:40,632 INFO  Running cmd ['/sbin/restorecon -R /etc/sysconfig/network-scripts']
+2019-05-28 22:16:40,701 INFO  Running cmd ['ethtool eth3']
+2019-05-28 22:16:40,707 INFO  Running cmd ['ethtool eth2']
+2019-05-28 22:16:40,711 INFO  Running cmd ['ethtool eth1']
+2019-05-28 22:16:40,714 INFO  Running cmd ['ethtool eth0']
+2019-05-28 22:16:40,718 INFO  Adding ['eth3', 'eth2', 'eth1', 'eth0'] to the list of uplinks for vswitch br0
+2019-05-28 22:16:40,719 INFO  Running cmd ['/sbin/ifdown eth3']
+2019-05-28 22:16:40,967 INFO  Running cmd ['/sbin/ifup eth3']
+2019-05-28 22:16:41,317 INFO  Running cmd ['/sbin/ifdown eth2']
+2019-05-28 22:16:41,544 INFO  Running cmd ['/sbin/ifup eth2']
+2019-05-28 22:16:41,892 INFO  Running cmd ['/sbin/ifdown eth1']
+2019-05-28 22:16:42,213 INFO  Running cmd ['/sbin/ifup eth1']
+2019-05-28 22:16:42,550 INFO  Running cmd ['/sbin/ifdown eth0']
+2019-05-28 22:16:42,869 INFO  Running cmd ['/sbin/ifup eth0']
+2019-05-28 22:16:43,200 INFO  Running cmd ['uname -r']
+2019-05-28 22:16:43,204 INFO  Running cmd ['ovs-vsctl add-br br0 -- add-bond br0 br0-up eth3 eth2 eth1 eth0']
+2019-05-28 22:16:43,327 INFO  Running cmd ['ovs-vsctl set port br0 tag=3']
+2019-05-28 22:16:48,369 INFO  Running cmd ['/sbin/ifdown br0']
+2019-05-28 22:16:48,513 INFO  Running cmd ['/sbin/ifup br0']
+2019-05-28 22:16:53,032 INFO  Running cmd ['service network restart']
+2019-05-28 22:17:00,564 INFO  Running cmd ['arping -A -I br0 10.35.0.130 -c 1']
+2019-05-28 22:17:00,583 INFO  Running cmd ['sleep 2']
+2019-05-28 22:17:02,587 INFO  Running cmd ['arping -U -I br0 10.35.0.130 -c 1']
+2019-05-28 22:17:02,602 INFO  Running cmd ['ipcalc -b 10.35.0.130 255.255.255.0']
+2019-05-28 22:17:02,605 INFO  Running cmd [u'ping -b -c 1 10.35.0.255 -W 1']
+2019-05-28 22:17:03,612 INFO  Execution of command [u'ping -b -c 1 10.35.0.255 -W 1'] failed, exit code: 1, stdout: PING 10.35.0.255 (10.35.0.255) 56(84) bytes of data.
+
+--- 10.35.0.255 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 1000ms
+
+, stderr: WARNING: pinging broadcast address
+
+2019-05-28 22:17:08,619 INFO  Configuring cvm interfaces
+2019-05-28 22:17:08,624 INFO  Updating cvm xml file for network devices
+2019-05-28 22:17:08,624 INFO  Run ssh cmd on SVM
+2019-05-28 22:17:08,625 INFO  Running cmd ['/usr/bin/ssh -i /root/nutanix-network-crashcart/nutanix -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=0 -o UserKnownHostsFile=/dev/null nutanix@192.168.5.254 "sudo cat /sys/class/net/eth0/address"']
+2019-05-28 22:17:09,138 INFO  Replacing external NIC eth0 in CVM
+2019-05-28 22:17:09,406 INFO  CVM external NIC eth0 successfully updated
+2019-05-28 22:17:09,407 INFO  Configuring cvm ips
+2019-05-28 22:17:09,410 INFO  SCP files to SVM
+2019-05-28 22:17:09,411 INFO  Running cmd ['/usr/bin/scp -i /root/nutanix-network-crashcart/nutanix -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=0 -o UserKnownHostsFile=/dev/null /tmp/etc/sysconfig/network-scripts/ifcfg-eth0 nutanix@192.168.5.2:/tmp/eth0']
+2019-05-28 22:17:09,900 INFO  Run ssh cmd on SVM
+2019-05-28 22:17:09,900 INFO  Running cmd ['/usr/bin/ssh -i /root/nutanix-network-crashcart/nutanix -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=0 -o UserKnownHostsFile=/dev/null nutanix@192.168.5.254 "sudo mv /tmp/eth0 /etc/sysconfig/network-scripts/ifcfg-eth0"']
+2019-05-28 22:17:10,396 INFO  Run ssh cmd on SVM
+2019-05-28 22:17:10,396 INFO  Running cmd ['/usr/bin/ssh -i /root/nutanix-network-crashcart/nutanix -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=0 -o UserKnownHostsFile=/dev/null nutanix@192.168.5.254 "sudo chown root:root /etc/sysconfig/network-scripts/ifcfg-eth0"']
+2019-05-28 22:17:10,879 INFO  Run ssh cmd on SVM
+2019-05-28 22:17:10,880 INFO  Running cmd ['/usr/bin/ssh -i /root/nutanix-network-crashcart/nutanix -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=0 -o UserKnownHostsFile=/dev/null nutanix@192.168.5.254 "sudo chmod 644 /etc/sysconfig/network-scripts/ifcfg-eth0"']
+2019-05-28 22:17:16,372 INFO  Restarting cvm network
+2019-05-28 22:17:16,372 INFO  Run ssh cmd on SVM
+2019-05-28 22:17:16,373 INFO  Running cmd ['/usr/bin/ssh -i /root/nutanix-network-crashcart/nutanix -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=0 -o UserKnownHostsFile=/dev/null nutanix@192.168.5.254 "sudo service network restart"']
+2019-05-28 22:17:27,620 INFO  Run ssh cmd on SVM
+2019-05-28 22:17:27,621 INFO  Running cmd ['/usr/bin/ssh -i /root/nutanix-network-crashcart/nutanix -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=0 -o UserKnownHostsFile=/dev/null nutanix@192.168.5.254 "/home/nutanix/cluster/bin/genesis restart"']
+2019-05-28 22:17:31,904 INFO  Network configuration successful!
